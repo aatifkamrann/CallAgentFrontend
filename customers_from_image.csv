@@ -1,0 +1,11 @@
+name,phone,balance,dpd,follow_up_count,ptp_status,ptp_date,final_response,gender
+Faraz Ahmed,"+923101234567",55000,10,0,,,,male
+Atif Hussain,"+923112345678",130000,35,2,pending,2026-04-18,,male
+Sadia Parveen,"+923121234567",40000,5,0,,,,female
+Rizwan Ali,"+923131234567",90000,20,1,,,callback_requested,male
+Nida Fatima,"+923141234567",175000,30,4,broken,,refused,female
+Kamran Shah,"+923151234567",65000,15,0,,,,male
+Hina Qadir,"+923161234567",100000,28,2,,,negotiation_barrier,female
+Tariq Mehmood,"+923171234567",50000,12,1,pending,2026-04-19,ptp_secured,male
+Filza Noor,"+923181234567",150000,25,3,pending,2026-04-21,ptp_secured,female
+Aqsa Bibi,"+923191234567",30000,8,0,,,non_customer_pickup,female

@@ -1,0 +1,1 @@
+ALTER TABLE public.customers ADD COLUMN final_response text DEFAULT NULL;
