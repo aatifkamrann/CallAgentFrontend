@@ -1,1 +1,0 @@
-ALTER TABLE public.customers ADD COLUMN gender TEXT NOT NULL DEFAULT 'unknown';
