@@ -22,6 +22,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { isRecordingPredictionPending } from '@/lib/utils';
 
+const RECORDING_PENDING_UI_TIMEOUT_MS = 2 * 60 * 1000;
+
 export default function Customers() {
   const navigate = useNavigate();
   const { customers, loading, addCustomer, updateCustomer, deleteCustomer, importCustomers, refetch } = useCustomers();
@@ -410,6 +412,11 @@ export default function Customers() {
                   const now = new Date();
                   const isOverdue = nextRetry && nextRetry <= now;
                   const recordingPredictionPending = isRecordingPredictionPending(customer.retry_reason);
+                  const pendingSinceRaw = customer.last_call_date || customer.updated_at;
+                  const pendingSinceTs = pendingSinceRaw ? new Date(pendingSinceRaw).getTime() : Number.NaN;
+                  const pendingAgeMs = Number.isFinite(pendingSinceTs) ? now.getTime() - pendingSinceTs : 0;
+                  const pendingTimedOut = recordingPredictionPending && pendingAgeMs >= RECORDING_PENDING_UI_TIMEOUT_MS;
+                  const showPendingSpinner = recordingPredictionPending && !pendingTimedOut;
                   
                   return (
                     <tr key={customer.id} className="hover:bg-muted/20 transition-colors">
@@ -438,18 +445,25 @@ export default function Customers() {
                         {outcomeDisplay ? (
                           <div className="flex flex-col gap-1">
                             <span className={`text-xs font-medium ${outcomeDisplay.color}`}>{outcomeDisplay.icon} {outcomeDisplay.label}</span>
-                            {recordingPredictionPending && (
+                            {showPendingSpinner && (
                               <span className="text-[10px] text-muted-foreground inline-flex items-center gap-1.5">
                                 <Loader2 className="w-3 h-3 animate-spin" />
                                 Recording analysis pending...
                               </span>
                             )}
+                            {pendingTimedOut && (
+                              <span className="text-[10px] text-amber-600">
+                                Recording analysis delayed (server busy/unavailable).
+                              </span>
+                            )}
                           </div>
-                        ) : recordingPredictionPending ? (
+                        ) : showPendingSpinner ? (
                           <span className="text-[10px] text-muted-foreground inline-flex items-center gap-1.5">
                             <Loader2 className="w-3 h-3 animate-spin" />
                             Recording analysis pending...
                           </span>
+                        ) : pendingTimedOut ? (
+                          <span className="text-[10px] text-amber-600">Recording analysis delayed (server busy/unavailable).</span>
                         ) : <span className="text-xs text-muted-foreground">—</span>}
                       </td>
                       <td className="px-3 py-3">
@@ -462,11 +476,14 @@ export default function Customers() {
                               📅 PTP Date: {ptpDate.toLocaleDateString('en-PK', { day: '2-digit', month: 'short' })}
                             </p>
                           )}
-                          {recordingPredictionPending && !ptpDate && (
+                          {showPendingSpinner && !ptpDate && (
                             <p className="text-[10px] text-muted-foreground inline-flex items-center gap-1.5">
                               <Loader2 className="w-3 h-3 animate-spin" />
                               Awaiting recording PTP data...
                             </p>
+                          )}
+                          {pendingTimedOut && !ptpDate && (
+                            <p className="text-[10px] text-amber-600">PTP analysis delayed; retrying in background.</p>
                           )}
                         </div>
                       </td>
